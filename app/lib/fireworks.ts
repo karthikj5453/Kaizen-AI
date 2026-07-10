@@ -5,14 +5,16 @@
 
 const FIREWORKS_BASE_URL = "https://api.fireworks.ai/inference/v1";
 
-export const MODELS = {
+export const MODELS: Record<string, string> = {
   /** Primary model — Llama 3.1 70B via Fireworks */
   default: "accounts/fireworks/models/llama-v3p1-70b-instruct",
   /** Faster model for lower-latency tasks */
   fast: "accounts/fireworks/models/llama-v3p1-8b-instruct",
   /** Gemma model for AMD GPU prize track */
   gemma: "accounts/fireworks/models/gemma2-9b-it",
-} as const;
+  /** Qwen 2.5 coder */
+  qwen: "accounts/fireworks/models/qwen2p5-coder-32b-instruct",
+};
 
 export type ModelKey = keyof typeof MODELS;
 
@@ -38,11 +40,13 @@ export async function callFireworks(
   }
 
   const {
-    model = MODELS.default,
+    model = "default",
     maxTokens = 2000,
     temperature = 0.7,
     topP = 0.9,
   } = options;
+
+  const resolvedModel = MODELS[model] || model;
 
   const response = await fetch(`${FIREWORKS_BASE_URL}/chat/completions`, {
     method: "POST",
@@ -51,7 +55,7 @@ export async function callFireworks(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model,
+      model: resolvedModel,
       messages,
       max_tokens: maxTokens,
       temperature,

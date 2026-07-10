@@ -97,12 +97,8 @@ export default function AssessmentPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
-  // Auto-scroll when questions change or generating state changes
-  useEffect(() => {
-    if (endOfListRef.current) {
-      endOfListRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, [questions.length, isGenerating]);
+  // Auto-scroll removed here to prevent jumping when starting or generating.
+  // We keep the programmatic scroll in submitAnswer.
 
   // Timer
   useEffect(() => {

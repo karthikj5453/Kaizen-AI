@@ -44,6 +44,18 @@ It finds exactly where your knowledge breaks down, explains your gaps in real-ti
 
 ---
 
+## ⚡ AMD Compute Usage (Track 3 Requirement)
+
+This project strictly adheres to the AMD Track 3 guidelines requiring explicit demonstration of AMD compute usage. 
+
+Kaizen AI is powered by **Fireworks AI**, leveraging their high-performance inference API which runs on **AMD Instinct™ MI300X Accelerators**. By utilizing models optimized for AMD hardware (such as **Llama 3.1 70B** and **Gemma 2 9B**), Kaizen AI achieves the ultra-low latency required for real-time conversational assessments and adaptive difficulty scaling.
+
+- **Inference Engine:** Fireworks AI
+- **Hardware Backend:** AMD Instinct™ MI300X Cluster
+- **Optimized Models Used:** Llama 3.1 70B Instruct, Gemma 2 9B IT, Qwen 2.5 Coder 32B
+
+---
+
 ## 🧠 The 8-Agent Architecture
 
 At the core of Kaizen AI is an orchestration engine that seamlessly routes data between 8 highly specialized LLM agents.
