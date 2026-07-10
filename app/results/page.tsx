@@ -167,7 +167,7 @@ export default function ResultsPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => router.push("/")}><Home className="w-4 h-4 mr-2" /> Home</Button>
-          <Button variant="secondary" size="sm"><Download className="w-4 h-4 mr-2" /> PDF</Button>
+          <Button variant="secondary" size="sm" onClick={() => window.print()}><Download className="w-4 h-4 mr-2" /> PDF</Button>
           <Button variant="primary" size="sm"><Share2 className="w-4 h-4 mr-2" /> Share</Button>
         </div>
       </header>

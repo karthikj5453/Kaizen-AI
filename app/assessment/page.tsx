@@ -97,6 +97,9 @@ export default function AssessmentPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
+  // Hardware Telemetry State
+  const [telemetry, setTelemetry] = useState<{ latency: number; status: string }>({ latency: 0, status: "IDLE" });
+
   // Auto-scroll removed here to prevent jumping when starting or generating.
   // We keep the programmatic scroll in submitAnswer.
 
@@ -147,6 +150,8 @@ export default function AssessmentPage() {
     const topic = topics[idx % topics.length];
 
     try {
+      setTelemetry({ latency: 0, status: "GENERATING..." });
+      const t0 = performance.now();
       const res = await fetch("/api/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -160,8 +165,10 @@ export default function AssessmentPage() {
           model: p.model,
         }),
       });
+      const t1 = performance.now();
       const data = await res.json();
       if (data.success) {
+        setTelemetry({ latency: Math.round(t1 - t0), status: "IDLE" });
         setQuestions(prev => [...prev, data.question]);
         setTimeLeft(data.question.timeLimit || 90);
         setTimerActive(true);
@@ -186,6 +193,8 @@ export default function AssessmentPage() {
     const timeTaken = Math.round((Date.now() - startTimeRef.current) / 1000);
 
     try {
+      setTelemetry({ latency: 0, status: "EVALUATING..." });
+      const t0 = performance.now();
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -198,8 +207,10 @@ export default function AssessmentPage() {
           model: profile.model,
         }),
       });
+      const t1 = performance.now();
       const data = await res.json();
       if (data.success) {
+        setTelemetry({ latency: Math.round(t1 - t0), status: "IDLE" });
         const evaluation = data.evaluation;
         
         // Update states
@@ -465,6 +476,32 @@ export default function AssessmentPage() {
         {/* Dummy div to scroll to */}
         <div ref={endOfListRef} className="h-[20px]" />
       </main>
+
+      {/* Hardware Telemetry Overlay */}
+      <div className="fixed bottom-0 left-0 right-0 h-[48px] border-t border-[#10B981]/20 bg-[#09090B]/90 backdrop-blur-md z-50 flex items-center justify-between px-[24px] font-mono text-[11px] text-[#A1A1AA]">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${telemetry.status === "IDLE" ? "bg-[#10B981]" : "bg-[#F59E0B] animate-pulse"}`} />
+            <span className={telemetry.status !== "IDLE" ? "text-[#F59E0B]" : "text-[#10B981]"}>
+              {telemetry.status}
+            </span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-[#71717A] border-l border-white/10 pl-4">
+            <Activity className="w-3.5 h-3.5" /> Hardware: AMD Instinct™ MI300X
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-[#71717A] border-l border-white/10 pl-4">
+            <Brain className="w-3.5 h-3.5" /> Engine: Fireworks AI ({profile.model})
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          {telemetry.latency > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-[#71717A]">Inference Latency:</span>
+              <span className="text-[#FAFAFA] font-bold">{telemetry.latency}ms</span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
